@@ -7,6 +7,15 @@
   "author": "bosdo <bosdo@jfmedier.dk>",
   "license": "MIT",
   "dependencies": {
+    "@types/cheerio": "^0.22.16",
+    "@types/node-fetch": "^2.5.5",
+    "cheerio": "^1.0.0-rc.3",
+    "node-fetch": "^2.6.0",
     "typescript": "^3.8.3"
+  },
+  "scripts": {
+    "start": "echo './bin/run.sh'",
+    "build": "tsc --pretty",
+    "dev": "tsc --watch"
   }
 }

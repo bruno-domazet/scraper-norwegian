@@ -13,6 +13,10 @@
       "alwaysStrict": true,
       "esModuleInterop": true
     },
-    "exclude": ["tests", "dist"]
+    "exclude": ["tests", "dist"],
+    "include": [
+        "src",
+        "node_modules/@types/puppeteer/index.d.ts"
+      ]
   }
   
