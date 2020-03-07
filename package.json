@@ -1,0 +1,12 @@
+{
+  "name": "scraper-norwegian",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "repository": "git@bitbucket.org:brunodomazet/scraper-norwegian.git",
+  "author": "bosdo <bosdo@jfmedier.dk>",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^3.8.3"
+  }
+}
