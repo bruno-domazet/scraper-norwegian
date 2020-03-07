@@ -1,4 +1,4 @@
-# Scraper - Norwegian.com #
+# Scraper - Norwegian.com
 
 Puppeteer based scraper for norwegian.com
 
@@ -8,4 +8,6 @@ Puppeteer based scraper for norwegian.com
 
 ## TODO
 
-- everything
+- deploy to cloud
+  - linux VM, with chrome gui
+  - use puppeteer-core
