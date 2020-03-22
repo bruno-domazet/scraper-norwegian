@@ -1,13 +1,32 @@
 # Scraper - Norwegian.com
 
-Puppeteer based scraper for norwegian.com
+Puppeteer based scraper + cheerio parser for norwegian.com
 
 ## Setup
 
-- ./run.sh
+- ./bin/run.sh
+
+## Scraper
+
+- Steps through 12 months ahead, while saving the HTML on every navigation
+  - file structure: "{scrapeDate}/{navigationYM}.txt"
+
+## Parser
+
+- cheerio loads the HTML from the scrape results
+- maps out date=>price
+- save data to DB
 
 ## TODO
 
-- deploy to cloud
+- separate scraping from parsing into different services
+- scraper: step through 12 months ahead, while saving the HTML on every navigation
+- parser: map date=>price from HTML, save to external DB
+
+# OPTIMIZATIONS
+
+- deploy to cloud (both services?)
   - linux VM, with chrome gui
-  - use puppeteer-core
+  - setup cloud buckets
+  - setup a DB
+  - setup graphs
