@@ -17,12 +17,27 @@ export const closeConnection = async (browser: Browser, page: Page) => {
   browser && (await browser.close());
 };
 
+export const getRandomInt = (min: number, max: number): number => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+export const sleep = async (sec: number) =>
+  new Promise(res => {
+    setTimeout(res, sec * 1000);
+  });
+
+export const sleepRandom = async (sec: number, noise: number) =>
+  new Promise(res => {
+    setTimeout(res, sec * 1000 - noise + Math.random() * 2 * noise);
+  });
+
+
 /**
  * Class: BrowserHandler
  *     Relaunch Browser when Closed
  *     Return false when Browser is Disconnected
  */
-
+// TODO: implement something like this, to resume in case browser crashes
 export class BrowserHandler {
   public browser: Browser | false = false;
   constructor() {
