@@ -46,8 +46,7 @@ const nextArr = ".nas-icon-arrow-right--arrow-right";
 
 
     const html = await page.evaluate(() => document.body.innerHTML);
-
-    closeConnection(browser, page);
+    await closeConnection(browser, page);
     return html;
   } catch (err) {
     console.error(err);
