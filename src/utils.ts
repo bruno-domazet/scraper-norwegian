@@ -12,7 +12,31 @@ export const openConnection = async () => {
   return { browser, page };
 };
 
-export const closeConnection = async (page:Page, browser:Browser) => {
+export const closeConnection = async (page: Page, browser: Browser) => {
   page && (await page.close());
   browser && (await browser.close());
 };
+
+
+// Or
+
+
+/**
+ * Class: BrowserHandler
+ *     Relaunch Browser when Closed
+ *     Return false when Browser is Disconnected
+ */
+
+export class BrowserHandler {
+  public browser: Browser | false = false;
+  constructor() {
+    const launch_browser = async () => {
+      this.browser = await launch(puppetOptions);
+      this.browser.on("disconnected", launch_browser);
+    };
+
+    (async () => {
+      await launch_browser();
+    })();
+  }
+}
