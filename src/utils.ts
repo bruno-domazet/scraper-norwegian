@@ -1,5 +1,6 @@
 import { puppetOptions } from "./config";
 import { launch, Page, Browser } from "puppeteer";
+import * as glob from "glob";
 
 export const openConnection = async () => {
   const browser = await launch(puppetOptions);
@@ -31,6 +32,10 @@ export const sleepRandom = async (sec: number, noise: number) =>
     setTimeout(res, sec * 1000 - noise + Math.random() * 2 * noise);
   });
 
+// get all txt files
+export const getFiles = (dir: string, ext: string = ".txt"): string[] => {
+  return glob.sync(dir + "/**/*" + ext);
+};
 
 /**
  * Class: BrowserHandler

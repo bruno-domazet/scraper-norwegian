@@ -61,7 +61,7 @@ const nextArr = ".nas-icon-arrow-right--arrow-right";
       if (!fs.existsSync(dumpDir)) {
         fs.mkdirSync(dumpDir);
       }
-      fs.writeFileSync(dumpDir + "/" + m.format("x") + ".txt", html);
+      fs.writeFileSync(dumpDir + "/" + m.format("YYYY-MM-DD-HH-mm-ss-SSS") + ".txt", html);
 
       // wait between 8-15 sec, before proceeding
       const waitSecs = getRandomInt(8, 15);
