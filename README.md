@@ -4,7 +4,9 @@ Puppeteer based scraper + cheerio parser for norwegian.com
 
 ## Setup
 
-- ./bin/run.sh
+- yarn build
+- ./bin/scrape.sh
+- ./bin/parse.sh
 
 ## Scraper
 

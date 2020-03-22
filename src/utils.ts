@@ -12,14 +12,10 @@ export const openConnection = async () => {
   return { browser, page };
 };
 
-export const closeConnection = async (page: Page, browser: Browser) => {
+export const closeConnection = async (browser: Browser, page: Page) => {
   page && (await page.close());
   browser && (await browser.close());
 };
-
-
-// Or
-
 
 /**
  * Class: BrowserHandler

@@ -1,11 +1,8 @@
 import { openConnection, closeConnection } from "./utils";
 import { default as moment } from "moment";
-import { default as cheerio } from "cheerio";
-import * as fs from "fs";
-import * as path from "path";
 
 const url = new URL("https://www.norwegian.com/dk/booking/fly/lavpris");
-const startDate = moment().add(1,'month'); // now
+const startDate = moment(); // now
 const endDate = startDate.clone().endOf("month"); // end of current month
 
 const params = new URLSearchParams({
@@ -32,15 +29,10 @@ const params = new URLSearchParams({
   currency: "DKK"
 });
 
-//// Selectors
-const wrapperCellSel = ".lowfare-calendar__cell";
-const priceSel = ".lowfare-calendar__price";
-const daySel = ".lowfare-calendar__date";
+/// Selectors
 const nextArr = ".nas-icon-arrow-right--arrow-right";
 
-const dumpPath = "../dumps";
-
-const saveHTML = async () => {
+(async () => {
   let { browser, page } = await openConnection();
   try {
     await page.goto(url.toString() + "?" + params.toString(), {
@@ -48,36 +40,16 @@ const saveHTML = async () => {
       referer: "https://www.norwegian.com/dk/"
     });
 
-    //await page.waitForSelector(wrapperCellSel, { timeout: 30 });
-    await page.screenshot({ path: "example.png" });
-    // save HTML from page
-    const dom = await page.evaluate(() => document.body.innerHTML);
+    // TODO: navigate 12 times,
+    // save html, on each step,
+    // done
 
-    await browser.close();
-    return dom;
+
+    const html = await page.evaluate(() => document.body.innerHTML);
+
+    closeConnection(browser, page);
+    return html;
   } catch (err) {
     console.error(err);
   }
-};
-
-// process data with cheerio
-const processHtml = async () => {
-  const html = fs.readFileSync("dumps/lols.html");
-  const data = [];
-  if (html) {
-    const dom = cheerio.load(html);
-
-    dom(wrapperCellSel).map((i, el) => {
-      const day = parseInt(dom(el).find(daySel).html()||'')
-      const price = parseInt(dom(el).find(priceSel).html()||'')
-      console.log('object',day,price)
-    });
-  }
-};
-
-(async () => {
-  const html = await saveHTML();
-  fs.writeFileSync("dumps/lols.html", html);
-
-  await processHtml();
 })();
