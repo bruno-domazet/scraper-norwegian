@@ -1,6 +1,6 @@
 import { openConnection, closeConnection, getRandomInt } from "./utils";
+import { parseAndStore } from "./parser";
 import { default as moment } from "moment";
-import * as fs from "fs";
 
 const params = new URLSearchParams({
   A_City: "ALC",
@@ -56,12 +56,15 @@ const nextArr = ".nas-icon-arrow-right--arrow-right";
       console.log(m.format("YYYY-MM"), "Scraping...");
       const html = await page.evaluate(() => document.body.innerHTML);
 
-      // TODO: Replace with a cloud bucket, instead of local storage
-      const dumpDir = "dumps/" + fromDate.format("YYYY-MM-DD");
-      if (!fs.existsSync(dumpDir)) {
-        fs.mkdirSync(dumpDir);
-      }
-      fs.writeFileSync(dumpDir + "/" + m.format("YYYY-MM-DD-HH-mm-ss-SSS") + ".txt", html);
+      // // TODO: Replace with a cloud bucket, instead of local storage
+      // const dumpDir = "dumps/" + fromDate.format("YYYY-MM-DD");
+      // if (!fs.existsSync(dumpDir)) {
+      //   fs.mkdirSync(dumpDir);
+      // }
+      // fs.writeFileSync(dumpDir + "/" + m.format("YYYY-MM-DD-HH-mm-ss-SSS") + ".txt", html);
+
+      // send html off to the parser
+      parseAndStore(html, m.format("YYYY-MM"));
 
       // wait between 8-15 sec, before proceeding
       const waitSecs = getRandomInt(8, 15);
