@@ -1,19 +1,21 @@
 import { puppetOptions } from "./config";
 import { launch, Page, Browser } from "puppeteer";
-import * as glob from "glob";
 
-export const openConnection = async () => {
+export const openPuppetConnection = async () => {
   const browser = await launch(puppetOptions);
   const page = await browser.newPage();
+  // TODO randomize user-agents (max 3)
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
   );
   await page.setViewport({ width: 1680, height: 1050 });
   await page.setJavaScriptEnabled(true);
+  // try to reopen browser
+  browser.on("disconnected", openPuppetConnection);
   return { browser, page };
 };
 
-export const closeConnection = async (browser: Browser, page: Page) => {
+export const closePuppetConnection = async (browser: Browser, page: Page) => {
   page && (await page.close());
   browser && (await browser.close());
 };
@@ -32,16 +34,12 @@ export const sleepRandom = async (sec: number, noise: number) =>
     setTimeout(res, sec * 1000 - noise + Math.random() * 2 * noise);
   });
 
-// get all txt files
-export const getFiles = (dir: string, ext: string = ".txt"): string[] => {
-  return glob.sync(dir + "/**/*" + ext);
-};
-
 /**
  * Class: BrowserHandler
  *     Relaunch Browser when Closed
  *     Return false when Browser is Disconnected
  */
+/*
 // TODO: implement something like this, to resume in case browser crashes
 export class BrowserHandler {
   public browser: Browser | false = false;
@@ -56,3 +54,4 @@ export class BrowserHandler {
     })();
   }
 }
+*/

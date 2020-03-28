@@ -1,6 +1,12 @@
-import { openConnection, closeConnection, getRandomInt } from "./utils";
-import { parseAndStore } from "./parser";
+import {
+  openPuppetConnection,
+  closePuppetConnection,
+  getRandomInt
+} from "./utils";
+import { parse, Entry } from "./parser";
 import { default as moment } from "moment";
+import { getCollection, getDbClient, closeDb } from "./db";
+import { dbConfig } from "./config";
 
 const params = new URLSearchParams({
   A_City: "ALC",
@@ -35,48 +41,88 @@ const url = new URL("https://www.norwegian.com/dk/booking/fly/lavpris");
 /// Selectors
 const nextArr = ".nas-icon-arrow-right--arrow-right";
 
+const parseAndStore = async (
+  html: string | Buffer,
+  datePeriod: string
+): Promise<any> => {
+  if (!html) {
+    return false;
+  }
+
+  const createdAt = moment().toISOString();
+  const rows: Entry[] = parse(html, datePeriod).map(row => {
+    return {
+      ...row,
+      createdAt
+    };
+  });
+
+  if (rows.length) {
+    return getDbClient().then(client => {
+      return (
+        getCollection(client)
+          // continue on write errors
+          .insertMany(rows, { ordered: true })
+          .then(res => res)
+          .catch(err => {
+            console.error(err);
+          })
+      );
+    });
+  } else {
+    console.log("## Nothing to insert!", datePeriod, rows);
+  }
+};
+
+// initial run of service
+const onStartup = () => {
+  // setup DB name and collection and
+  // setup unique compound indexes
+  getDbClient().then(client => {
+    client
+      .db(dbConfig.db)
+      .collection(dbConfig.collection)
+      .createIndex({ flightDate: 1, price: 1, origin: 1 }, { unique: true })
+      .catch(err => console.error(err));
+  });
+  // other scaffolding stuff..?
+};
+
 (async () => {
   const fromDate = moment();
   const toDate = fromDate.clone().add(1, "year");
 
   try {
-    let { browser, page } = await openConnection();
-    console.log("goto");
+    let { browser, page } = await openPuppetConnection();
     await page.goto(url.toString() + "?" + params.toString(), {
       waitUntil: ["load", "networkidle2"]
     });
-    console.log("goto::done");
 
     // navigate through the next 12 months
     // save html, on each step,
-    console.log("loop");
     for (let m = moment(fromDate); m.isBefore(toDate); m.add(1, "month")) {
       // get html and it write to file
 
       console.log(m.format("YYYY-MM"), "Scraping...");
       const html = await page.evaluate(() => document.body.innerHTML);
 
-      // // TODO: Replace with a cloud bucket, instead of local storage
-      // const dumpDir = "dumps/" + fromDate.format("YYYY-MM-DD");
-      // if (!fs.existsSync(dumpDir)) {
-      //   fs.mkdirSync(dumpDir);
-      // }
-      // fs.writeFileSync(dumpDir + "/" + m.format("YYYY-MM-DD-HH-mm-ss-SSS") + ".txt", html);
-
       // send html off to the parser
       parseAndStore(html, m.format("YYYY-MM"));
 
       // wait between 8-15 sec, before proceeding
-      const waitSecs = getRandomInt(8, 15);
-      console.log("Waiting...", waitSecs);
+      const waitSecs = getRandomInt(3, 8); // tweak for speed + "human behavior"
       await page.waitFor(waitSecs * 1000);
-      console.log("Navigating...");
+      // TODO select random days (simulate "human behavior")
       await page.click(nextArr, { delay: getRandomInt(20, 200) });
     }
 
-    console.log("loop::done");
+    // close browser
+    closePuppetConnection(browser, page);
 
-    await closeConnection(browser, page);
+    // close DB
+    getDbClient().then(client => {
+      closeDb(client);
+    });
 
     console.log("Done in", moment().diff(fromDate, "s", true) + "s.");
   } catch (err) {
