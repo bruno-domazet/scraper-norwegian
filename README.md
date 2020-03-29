@@ -4,24 +4,32 @@ Puppeteer based scraper + cheerio parser for norwegian.com
 
 ## Setup
 
-- ./bin/scrape.sh
-- ./bin/setup-db.sh [--init]
+- `./bin/run-db.sh [--init]` - start DB ( --init, optionally setup users+tables)
+- `./bin/start.sh` - starts service
 
-## Scraper
+## Service
+
+- `/` - dashboard (TODO)
+- `/health` - health status (+ metrics (TODO))
+- `/scrape` - triggers a scrape (opens a `google-chrome` instance)
+
+### Scraper
 
 - Steps through 12 months ahead today, while passing the HTML on to the parser
-- After parsing, store to DB
+- After parsing, store parsed data to DB
 
 ## Parser
 
-- cheerio loads the HTML from the scrape results
-- return mapped out date=>price
+- `cheerio` loads the HTML from the scrape results
+- return mapped out data (date,price,origin)
 
 ## TODO
 
-- add express
+- ~~add express~~
   - setup mongodb, users and indices
-  - service lives forever, browser+db conn closed on each scrape
+  - ~~service lives forever, browser+db conn closed on each scrape~~
+  - dashboard
+  - service health + metrics
 - daily cronjob triggers the scrapping
 - add "human behavior" to puppeteer
 - profit??

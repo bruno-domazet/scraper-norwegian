@@ -24,9 +24,8 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "start": "echo './bin/scraper.sh'",
+    "start": "echo './bin/start.sh'",
     "build": "tsc --pretty",
-    "build:db": "tsc --pretty",
     "dev": "tsc --watch"
   }
 }

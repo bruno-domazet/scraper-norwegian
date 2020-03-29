@@ -64,7 +64,7 @@ const parseAndStore = async (
           .insertMany(rows, { ordered: true })
           .then(res => res)
           .catch(err => {
-            console.error(err);
+            console.error(err.message);
           })
       );
     });
@@ -73,9 +73,20 @@ const parseAndStore = async (
   }
 };
 
-(async () => {
+export const scrape = async () => {
   const fromDate = moment();
   const toDate = fromDate.clone().add(1, "year");
+  // close DB
+  try {
+    const client = await getDbClient();
+    if (!client.isConnected()) {
+      console.error();
+      return { ok: false, message: "NO DB Connection" };
+    }
+  } catch (err) {
+    console.error(err);
+    return { ok: false, message: err.message };
+  }
 
   try {
     let { browser, page } = await openPuppetConnection();
@@ -109,8 +120,13 @@ const parseAndStore = async (
       closeDb(client);
     });
 
-    console.log("Done in", moment().diff(fromDate, "s", true) + "s.");
+    console.log(`Done in ${moment().diff(fromDate, "s", true)}s.`);
+    return {
+      ok: true,
+      message: `Done in ${moment().diff(fromDate, "s", true)}s.`
+    };
   } catch (err) {
     console.error(err);
+    return { ok: false, message: err.message };
   }
-})();
+};
