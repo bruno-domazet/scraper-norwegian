@@ -4,9 +4,8 @@ Puppeteer based scraper + cheerio parser for norwegian.com
 
 ## Setup
 
-- yarn build
 - ./bin/scrape.sh
-- ./bin/parse.sh
+- ./bin/setup-db.sh [--init]
 
 ## Scraper
 
@@ -20,7 +19,7 @@ Puppeteer based scraper + cheerio parser for norwegian.com
 
 ## TODO
 
-- dockerize the app
+- add express
   - setup mongodb, users and indices
   - service lives forever, browser+db conn closed on each scrape
 - daily cronjob triggers the scrapping
