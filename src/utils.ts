@@ -1,8 +1,9 @@
 import { puppetOptions } from "./config";
-import { launch, Page, Browser } from "puppeteer";
+import { launch, Page, Browser } from "puppeteer-core";
 
 export const openPuppetConnection = async () => {
   const browser = await launch(puppetOptions);
+  const context = await browser.createIncognitoBrowserContext();
   const page = await browser.newPage();
   // TODO randomize user-agents (max 3)
   await page.setUserAgent(

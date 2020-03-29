@@ -6,7 +6,6 @@ import {
 import { parse, Entry } from "./parser";
 import { default as moment } from "moment";
 import { getCollection, getDbClient, closeDb } from "./db";
-import { dbConfig } from "./config";
 
 const params = new URLSearchParams({
   A_City: "ALC",
@@ -72,20 +71,6 @@ const parseAndStore = async (
   } else {
     console.log("## Nothing to insert!", datePeriod, rows);
   }
-};
-
-// initial run of service
-const onStartup = () => {
-  // setup DB name and collection and
-  // setup unique compound indexes
-  getDbClient().then(client => {
-    client
-      .db(dbConfig.db)
-      .collection(dbConfig.collection)
-      .createIndex({ flightDate: 1, price: 1, origin: 1 }, { unique: true })
-      .catch(err => console.error(err));
-  });
-  // other scaffolding stuff..?
 };
 
 (async () => {

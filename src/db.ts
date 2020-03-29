@@ -15,3 +15,17 @@ export const getCollection = (client: MongoClient): Collection => {
 export const closeDb = (client: MongoClient, force?: boolean) => {
   return client.close(force);
 };
+/*
+// initial run of service
+export const initDb = () => {
+  // setup DB name and collection and
+  // setup unique compound indexes
+  getDbClient().then(client => {
+    client
+      .db(dbConfig.db)
+      .collection(dbConfig.collection)
+      .createIndex({ flightDate: 1, price: 1, origin: 1 }, { unique: true })
+      .catch(err => console.error(err));
+  });
+};
+*/

@@ -1,7 +1,9 @@
 import { MongoClientOptions } from "mongodb";
+import { LaunchOptions } from "puppeteer-core";
 
 // TODO: conf per ENV, dev + cloud
-export const puppetOptions = {
+export const puppetOptions: LaunchOptions = {
+  executablePath: process.env.pathToChrome || "/usr/bin/google-chrome",
   headless: false,
   slowMo: 200, // maybe needed?
   args: [
