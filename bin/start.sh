@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #export DEBUG=*
 
-if [[ $1 === '--ws']]; then
+if [[ $1 == '--ws' ]]; then
     # 1. start chrome in debug mode
     # google-chrome --remote-debugging-port=9222 & # background
 
