@@ -1,9 +1,13 @@
-import { puppetOptions } from "./config";
-import { launch, Page, Browser } from "puppeteer-core";
+import { puppetOptions, puppetWSOptions } from "./config";
+import { launch, Page, Browser, connect } from "puppeteer-core";
 
-export const openPuppetConnection = async () => {
-  const browser = await launch(puppetOptions);
-  const context = await browser.createIncognitoBrowserContext();
+export const openPuppetConnection = async (withWebSocket = false) => {
+  const browser: Browser = withWebSocket
+    ? await connect(puppetOptions)
+    : await launch(puppetWSOptions);
+
+  // go incognito
+  await browser.createIncognitoBrowserContext();
   const page = await browser.newPage();
   // TODO randomize user-agents (max 3)
   await page.setUserAgent(
@@ -11,8 +15,11 @@ export const openPuppetConnection = async () => {
   );
   await page.setViewport({ width: 1680, height: 1050 });
   await page.setJavaScriptEnabled(true);
+
   // try to reopen browser
+  // UNTESTED!!
   browser.on("disconnected", openPuppetConnection);
+
   return { browser, page };
 };
 

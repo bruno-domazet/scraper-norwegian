@@ -1,5 +1,5 @@
 import { MongoClientOptions } from "mongodb";
-import { LaunchOptions } from "puppeteer-core";
+import { LaunchOptions, ConnectOptions } from "puppeteer-core";
 
 // TODO: conf per ENV, dev + cloud
 export const puppetOptions: LaunchOptions = {
@@ -20,6 +20,12 @@ export const puppetOptions: LaunchOptions = {
     "--proxy-bypass-list=*",
     "--deterministic-fetch"
   ]
+};
+
+// @link https://stackoverflow.com/questions/51175788/how-can-my-containerized-puppeteer-talk-to-my-host-machine-chrome#51184634
+// `google-chrome --remote-debugging-port=9222`
+export const puppetWSOptions: ConnectOptions = {
+  browserWSEndpoint: process.env.WSEndpoint || undefined
 };
 
 export const dbConfig = {
