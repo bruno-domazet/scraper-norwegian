@@ -1,5 +1,5 @@
 import { puppetOptions, puppetWSOptions } from "./config";
-import { launch, Page, Browser, connect } from "puppeteer-core";
+import { launch, Page, Browser, connect } from "puppeteer";
 
 export const openPuppetConnection = async (withWebSocket = false) => {
   const browser: Browser = withWebSocket
@@ -7,8 +7,8 @@ export const openPuppetConnection = async (withWebSocket = false) => {
     : await launch(puppetWSOptions);
 
   // go incognito
-  await browser.createIncognitoBrowserContext();
-  const page = await browser.newPage();
+  const ctx = await browser.createIncognitoBrowserContext();
+  const page = await ctx.newPage();
   // TODO randomize user-agents (max 3)
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
