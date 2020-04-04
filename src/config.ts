@@ -29,15 +29,15 @@ export const puppetWSOptions: ConnectOptions = {
 };
 
 export const dbConfig = {
-  host: process.env.dbHost || "mongodb://localhost:27017",
-  db: process.env.dbName || "scraper",
-  collection: process.env.dbCollection || "norwegian.com"
+  host: process.env.DB_HOST || "mongodb://localhost:27017",
+  db: process.env.DB_NAME || "scraper",
+  collection: process.env.DB_COLLECTION_NAME || "flightPrices"
 };
 
 export const dbClientOptions: MongoClientOptions = {
   auth: {
-    user: process.env.dbUser || "root",
-    password: process.env.dbUser || "example"
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASS || "example"
   },
   validateOptions: true
 };

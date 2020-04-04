@@ -3,13 +3,16 @@ version: "3.1"
 services:
   mongo:
     image: mongo
+    container_name: 'mongo-db'
     restart: always
     ports:
       - 27017:27017
+      
     environment:
-      # Update creds
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS}
+    volumes: 
+     - ./init-db.js:/docker-entrypoint-initdb.d/inits.js:ro
 
   ## TODO Add node app
   #app:
@@ -23,5 +26,5 @@ services:
       - 8081:8081
     environment:
       # update creds
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${DB_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${DB_PASS}
