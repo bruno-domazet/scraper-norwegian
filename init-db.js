@@ -33,16 +33,19 @@ collection.createIndex({ flightDate: 1, airport: 1, airline: 1 }, { unique: true
 
 // "Schema"
 /*
-JSON.parse(
-    {
-        "flightDate": "2020-03-01",
-        "price": {
-            // "scrapeDate": "price"
-            "2020-03-01T00:00:00Z": 200,
-            "2020-03-01T02:00:00Z": 400,
-        },
-        "airport": "CPH",
-        "airline": "norwegian.com",
-    }
-)
+{
+    "flightDate": "2020-03-01",
+    "prices": [
+        {
+            "createdAt": "2020-03-01T00:00:00Z",
+            "price": 200
+        }, {
+
+            "createdAt": "2020-03-01T02:00:00Z",
+            "price": 400,
+        }
+    ],
+    "airport": "CPH",
+    "airline": "norwegian.com",
+}
 */

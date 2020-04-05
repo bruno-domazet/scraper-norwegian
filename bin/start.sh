@@ -15,5 +15,8 @@ if [[ $1 == '--ws' ]]; then
 
 fi
 
-# 4. start the node service
+# 4. built it
+yarn build
+
+# 5. start the node service
 node dist/index.js

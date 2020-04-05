@@ -1,11 +1,39 @@
 import {
   openPuppetConnection,
   closePuppetConnection,
-  getRandomInt
+  getRandomInt,
 } from "./utils";
-import { parse, Entry } from "./parser";
+import { parse } from "./parser";
 import { default as moment } from "moment";
 import { getCollection, getDbClient, closeDb } from "./db";
+
+/*
+{
+  "flightDate": "2020-03-01",
+  "prices": [
+      {
+          "createdAt": "2020-03-01T00:00:00Z",
+          "price": 200
+      }, {
+
+          "createdAt": "2020-03-01T02:00:00Z",
+          "price": 400,
+      }
+  ],
+  "airport": "CPH",
+  "airline": "norwegian.com",
+}
+*/
+export interface PriceEntity {
+  createdAt: string;
+  price: number;
+}
+
+export interface Entry {
+  flightDate: string;
+  airport: string;
+  airline: string;
+}
 
 const params = new URLSearchParams({
   A_City: "ALC",
@@ -19,20 +47,16 @@ const params = new URLSearchParams({
   IncludeTransit: "false",
   InfantCount: "0",
   R_Day: "25",
-  R_Month: moment()
-    .endOf("month")
-    .format("YYYYMM"), //"202003",
+  R_Month: moment().endOf("month").format("YYYYMM"), //"202003",
   R_SelectedDay: "25",
   TripType: "2",
   origin: "CPH",
   destination: "ALC",
   outbound: moment().format("YYYY-MM"), //"2020-03",
-  inbound: moment()
-    .endOf("month")
-    .format("YYYY-MM"), //"2020-03",
+  inbound: moment().endOf("month").format("YYYY-MM"), //"2020-03",
   adults: "2",
   children: "3",
-  currency: "DKK"
+  currency: "DKK",
 });
 
 const url = new URL("https://www.norwegian.com/dk/booking/fly/lavpris");
@@ -47,29 +71,46 @@ const parseAndStore = async (
   if (!html) {
     return false;
   }
+  const parsed = parse(html, datePeriod);
 
-  const createdAt = moment().toISOString();
-  const rows: Entry[] = parse(html, datePeriod).map(row => {
+  const findQueries = parsed.map((row) => {
     return {
-      ...row,
-      createdAt
+      flightDate: row.flightDate,
+      airport: row.airport,
+      airline: row.airline,
+    };
+  });
+  const updateStms = parsed.map((row) => {
+    const prices: PriceEntity[] = [];
+    prices.push({
+      createdAt: moment().toISOString(),
+      price: row.price,
+    });
+    return {
+      $push: { prices },
     };
   });
 
-  if (rows.length) {
-    return getDbClient().then(client => {
-      return (
-        getCollection(client)
-          // continue on write errors
-          .insertMany(rows, { ordered: true })
-          .then(res => res)
-          .catch(err => {
+  // console.log("findQueries", findQueries);
+  // console.log("updateStms", JSON.stringify(updateStms));
+
+  if (findQueries.length) {
+    return getDbClient().then((client) => {
+      const col = getCollection(client);
+
+      return findQueries.forEach((filter, i) => {
+        const updateStm = updateStms[i];
+
+        col
+          .findOneAndUpdate(filter, updateStm, { upsert: true })
+          .then((res) => res)
+          .catch((err) => {
             console.error(err.message);
-          })
-      );
+          });
+      });
     });
   } else {
-    console.log("## Nothing to insert!", datePeriod, rows);
+    console.log("## Nothing to insert!", datePeriod);
   }
 };
 
@@ -91,39 +132,48 @@ export const scrape = async () => {
   try {
     let { browser, page } = await openPuppetConnection();
     await page.goto(url.toString() + "?" + params.toString(), {
-      waitUntil: ["load", "networkidle2"]
+      waitUntil: ["load", "networkidle2"],
     });
 
     // navigate through the next 12 months
     // save html, on each step,
     for (let m = moment(fromDate); m.isBefore(toDate); m.add(1, "month")) {
-      // get html and it write to file
+      // wait a bit, before proceeding (also animations)
+      const waitSecs = getRandomInt(1, 3); // tweak for speed & "human behavior"
+      await page.waitFor(waitSecs * 1000);
 
+      // get html and it write to file
       console.log(m.format("YYYY-MM"), "Scraping...");
       const html = await page.evaluate(() => document.body.innerHTML);
 
-      // send html off to the parser
+      // capture screenshot
+      if (process.env.NODE_ENV === "dev") {
+        await page.screenshot({
+          path: "screens/" + m.format("YYYY-MM") + ".png",
+        });
+      }
+
+      // send html+current year-month off to the parser
       parseAndStore(html, m.format("YYYY-MM"));
 
-      // wait between 8-15 sec, before proceeding
-      const waitSecs = getRandomInt(3, 8); // tweak for speed + "human behavior"
-      await page.waitFor(waitSecs * 1000);
       // TODO select random days (simulate "human behavior")
-      await page.click(nextArr, { delay: getRandomInt(20, 200) });
+
+      // proceed
+      await page.click(nextArr, { delay: getRandomInt(50, 100) });
     }
 
     // close browser
     closePuppetConnection(browser, page);
 
     // close DB
-    getDbClient().then(client => {
+    getDbClient().then((client) => {
       closeDb(client);
     });
 
     console.log(`Done in ${moment().diff(fromDate, "s", true)}s.`);
     return {
       ok: true,
-      message: `Done in ${moment().diff(fromDate, "s", true)}s.`
+      message: `Done in ${moment().diff(fromDate, "s", true)}s.`,
     };
   } catch (err) {
     console.error(err);

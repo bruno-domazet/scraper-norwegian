@@ -3,8 +3,9 @@ import { launch, Page, Browser, connect } from "puppeteer";
 
 export const openPuppetConnection = async (withWebSocket = false) => {
   const browser: Browser = withWebSocket
-    ? await connect(puppetOptions)
-    : await launch(puppetWSOptions);
+    ? await connect(puppetWSOptions)
+    : await launch(); // works without options, no chrome instance opened
+    // TODO test if above works within a container
 
   // go incognito
   const ctx = await browser.createIncognitoBrowserContext();
@@ -16,9 +17,8 @@ export const openPuppetConnection = async (withWebSocket = false) => {
   await page.setViewport({ width: 1680, height: 1050 });
   await page.setJavaScriptEnabled(true);
 
-  // try to reopen browser
-  // UNTESTED!!
-  browser.on("disconnected", openPuppetConnection);
+  // try to reopen browser (re-opens even on force close...)
+  // browser.on("disconnected", openPuppetConnection);
 
   return { browser, page };
 };
@@ -33,12 +33,12 @@ export const getRandomInt = (min: number, max: number): number => {
 };
 
 export const sleep = async (sec: number) =>
-  new Promise(res => {
+  new Promise((res) => {
     setTimeout(res, sec * 1000);
   });
 
 export const sleepRandom = async (sec: number, noise: number) =>
-  new Promise(res => {
+  new Promise((res) => {
     setTimeout(res, sec * 1000 - noise + Math.random() * 2 * noise);
   });
 

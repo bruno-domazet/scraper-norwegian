@@ -3,7 +3,7 @@ import { LaunchOptions, ConnectOptions } from "puppeteer-core";
 
 // TODO: conf per ENV, dev + cloud
 export const puppetOptions: LaunchOptions = {
-  executablePath: process.env.pathToChrome || "/usr/bin/google-chrome",
+  executablePath: process.env.PATH_TO_CHROME || "/usr/bin/google-chrome",
   headless: false,
   slowMo: 200, // maybe needed?
   args: [
@@ -25,7 +25,7 @@ export const puppetOptions: LaunchOptions = {
 // @link https://stackoverflow.com/questions/51175788/how-can-my-containerized-puppeteer-talk-to-my-host-machine-chrome#51184634
 // `google-chrome --remote-debugging-port=9222`
 export const puppetWSOptions: ConnectOptions = {
-  browserWSEndpoint: process.env.WSEndpoint || undefined
+  browserWSEndpoint: process.env.WS_ENDPOINT || undefined
 };
 
 export const dbConfig = {

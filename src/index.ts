@@ -1,3 +1,6 @@
+// load envs
+require("dotenv-flow").config();
+
 import { default as express } from "express";
 import { scrape } from "./scraper";
 
@@ -11,6 +14,7 @@ app.get("/health", (req, res) => {
   return res.send("TODO: health + metrics");
 });
 
+// TODO: endpoint per airline/site
 app.get("/scrape", async (req, res) => {
   const result = await scrape();
   return res.send(result.message);

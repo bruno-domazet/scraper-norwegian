@@ -4,11 +4,8 @@ import { default as moment } from "moment";
 export interface ParsedFlightData {
   flightDate: string;
   price: number;
-  origin: string;
-  currency: string;
-}
-export interface Entry extends ParsedFlightData {
-  createdAt: string;
+  airport: string;
+  airline: string;
 }
 
 export const parse = (
@@ -32,33 +29,29 @@ export const parse = (
       .each((i, cell) => {
         dom(cell).each((i, cellContent) => {
           const price = parseInt(
-            dom(cellContent)
-              .find(priceSel)
-              .html()
-              ?.replace(".", "") || "",
+            dom(cellContent).find(priceSel).html()?.replace(".", "") || "",
             10
           );
 
           const day = parseInt(
-            dom(cellContent)
-              .find(daySel)
-              .html()
-              ?.replace(".", "") || "",
+            dom(cellContent).find(daySel).html()?.replace(".", "") || "",
             10
           );
 
-          const flightDate = moment(
-            [datePeriod, day].join("-"),
-            "YYYY-MM-DD"
-          ).toISOString();
+          // only valid data plz
+          if (!isNaN(price) && !isNaN(day)) {
+            // HACK! adding time to fix tz issues
+            const dateString = [datePeriod, day, "14:00"].join("-");
+            const flightDate = moment(
+              dateString,
+              "YYYY-MM-DD-HH:mm"
+            ).toISOString();
 
-          // only prices plz
-          if (!isNaN(price)) {
             data.push({
               flightDate,
               price,
-              origin: calIdx === 0 ? "CPH" : "ALC",
-              currency: "DKK"
+              airport: calIdx === 0 ? "CPH" : "ALC",
+              airline: "norwegian.com", // hard connection to parse/scraper logic
             });
           }
         });
