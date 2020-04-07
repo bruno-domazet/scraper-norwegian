@@ -9,7 +9,7 @@ import { getCollection, getDbClient, closeDb } from "./db";
 
 /*
 {
-  "flightDate": "2020-03-01",
+  "flightDate": "2020-03-01T00:00:00Z",
   "prices": [
       {
           "createdAt": "2020-03-01T00:00:00Z",
@@ -81,13 +81,13 @@ const parseAndStore = async (
     };
   });
   const updateStms = parsed.map((row) => {
-    const prices: PriceEntity[] = [];
-    prices.push({
-      createdAt: moment().toISOString(),
-      price: row.price,
-    });
     return {
-      $push: { prices },
+      $push: {
+        prices: {
+          createdAt: moment().toDate(),
+          price: row.price,
+        },
+      },
     };
   });
 
@@ -106,11 +106,13 @@ const parseAndStore = async (
           .then((res) => res)
           .catch((err) => {
             console.error(err.message);
+            return false;
           });
       });
     });
   } else {
     console.log("## Nothing to insert!", datePeriod);
+    return false;
   }
 };
 
@@ -144,17 +146,32 @@ export const scrape = async () => {
 
       // get html and it write to file
       console.log(m.format("YYYY-MM"), "Scraping...");
-      const html = await page.evaluate(() => document.body.innerHTML);
-
-      // capture screenshot
       if (process.env.NODE_ENV === "dev") {
         await page.screenshot({
-          path: "screens/" + m.format("YYYY-MM") + ".png",
+          path: `screens/dev-${m.format("YYYY-MM")}.png`,
+        });
+      }
+      const html = await page.evaluate(() => document.body.innerHTML);
+
+      // capture screenshot, if next selector is missing
+      const nextSel = await page.evaluate(() =>
+        document.querySelector(nextArr)
+      );
+      if (!nextSel) {
+        await page.screenshot({
+          path: `screens/err-${m.format("YYYY-MM")}.png`,
         });
       }
 
       // send html+current year-month off to the parser
-      parseAndStore(html, m.format("YYYY-MM"));
+      const res = await parseAndStore(html, m.format("YYYY-MM"));
+
+      // capture screenshot, if no results
+      if (!res) {
+        await page.screenshot({
+          path: `screens/empty-${m.format("YYYY-MM")}.png`,
+        });
+      }
 
       // TODO select random days (simulate "human behavior")
 

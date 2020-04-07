@@ -2,7 +2,7 @@ import { default as cheerio } from "cheerio";
 import { default as moment } from "moment";
 
 export interface ParsedFlightData {
-  flightDate: string;
+  flightDate: Date;
   price: number;
   airport: string;
   airline: string;
@@ -45,7 +45,7 @@ export const parse = (
             const flightDate = moment(
               dateString,
               "YYYY-MM-DD-HH:mm"
-            ).toISOString();
+            ).toDate();
 
             data.push({
               flightDate,
