@@ -4,14 +4,15 @@ Puppeteer based scraper + cheerio parser for norwegian.com
 
 ## Setup
 
-- `./bin/run-db.sh [--init]` - start DB ( --init, optionally setup users+tables)
-- `./bin/start.sh` - starts service
+- `./bin/build.sh` - rebuilds the nodejs app docker image
+- `./bin/up.sh` - starts services and a `google-chrome` instance
+- `./bin/down.sh` - stops services and `google-chrome`
 
 ## Service
 
 - `/` - dashboard (TODO)
 - `/health` - health status (+ metrics (TODO))
-- `/scrape` - triggers a scrape (opens a `google-chrome` instance)
+- `/scrape` - triggers a scrape
 
 ### Scraper
 
@@ -25,10 +26,11 @@ Puppeteer based scraper + cheerio parser for norwegian.com
 
 ## TODO
 
+- abstract the scraper+parser setup, to support additional websites
 - ~~add express~~
-  - setup mongodb, users and indices
+  - ~~setup mongodb, users and indices~~
   - ~~service lives forever, browser+db conn closed on each scrape~~
-  - dashboard
+  - dashboard (maybe MongoDB Charts?)
   - service health + metrics
 - daily cronjob triggers the scrapping
 - add "human behavior" to puppeteer
