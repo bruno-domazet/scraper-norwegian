@@ -1,0 +1,11 @@
+# git
+.git/
+.gitignore
+
+# output
+dist/
+node_modules/
+*.log
+
+# docker specific
+docker-compose.yaml

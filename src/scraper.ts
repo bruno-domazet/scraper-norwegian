@@ -2,10 +2,12 @@ import {
   openPuppetConnection,
   closePuppetConnection,
   getRandomInt,
+  resolveDockerHostNameOrIp,
 } from "./utils";
 import { parse } from "./parser";
 import { default as moment } from "moment";
 import { getCollection, getDbClient, closeDb } from "./db";
+import { default as fetch } from "node-fetch";
 
 /*
 {
@@ -119,11 +121,31 @@ const parseAndStore = async (
 export const scrape = async () => {
   const fromDate = moment();
   const toDate = fromDate.clone().add(1, "year");
+  const dockerHost = resolveDockerHostNameOrIp();
+
+  // get chrome debugging WebSocket url
+  const webSocketUrl: string | undefined = await fetch(
+    `http://${dockerHost}:${process.env.WS_PORT || 9221}/json/version`
+  )
+    .then((d) =>
+      d
+        .json()
+        .then((b) =>
+          b.webSocketDebuggerUrl.replace(/127.0.0.1/g, `${dockerHost}`)
+        )
+        .catch((err) => {
+          console.error(err);
+        })
+    )
+    .catch((err) => {
+      console.error(err);
+    });
+
   // close DB
   try {
     const client = await getDbClient();
     if (!client.isConnected()) {
-      console.error();
+      console.error("NO DB Connection");
       return { ok: false, message: "NO DB Connection" };
     }
   } catch (err) {
@@ -132,7 +154,8 @@ export const scrape = async () => {
   }
 
   try {
-    let { browser, page } = await openPuppetConnection();
+    let { browser, page } = await openPuppetConnection(webSocketUrl);
+
     await page.goto(url.toString() + "?" + params.toString(), {
       waitUntil: ["load", "networkidle2"],
     });
@@ -154,12 +177,14 @@ export const scrape = async () => {
       const html = await page.evaluate(() => document.body.innerHTML);
 
       // capture screenshot, if next selector is missing
-      const nextSel = await page.evaluate(() =>
-        document.querySelector(nextArr)
+      const nextSel = await page.evaluate(
+        (nextArr) => document.querySelector(nextArr),
+        nextArr
       );
       if (!nextSel) {
         await page.screenshot({
           path: `screens/err-${m.format("YYYY-MM")}.png`,
+          fullPage: true,
         });
       }
 
@@ -170,6 +195,7 @@ export const scrape = async () => {
       if (!res) {
         await page.screenshot({
           path: `screens/empty-${m.format("YYYY-MM")}.png`,
+          fullPage: true,
         });
       }
 
@@ -179,7 +205,7 @@ export const scrape = async () => {
       await page.click(nextArr, { delay: getRandomInt(50, 100) });
     }
 
-    // close browser
+    // close page, disconnect from browser, window still open
     closePuppetConnection(browser, page);
 
     // close DB

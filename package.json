@@ -13,6 +13,7 @@
     "@types/glob": "^7.1.1",
     "@types/moment": "^2.13.0",
     "@types/mongodb": "^3.5.4",
+    "@types/node-fetch": "^2.5.5",
     "@types/puppeteer": "^2.0.1",
     "@types/puppeteer-core": "^2.0.0",
     "cheerio": "^1.0.0-rc.3",
@@ -21,12 +22,14 @@
     "glob": "^7.1.6",
     "moment": "^2.24.0",
     "mongodb": "^3.5.5",
+    "node-fetch": "^2.6.0",
     "puppeteer": "^2.1.1",
     "puppeteer-core": "^2.1.1",
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "start": "echo './bin/start.sh'",
+    "start": "node dist/index.js",
+    "start:bin": "echo './bin/start.sh'",
     "build": "tsc --pretty",
     "dev": "tsc --watch"
   }

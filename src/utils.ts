@@ -1,11 +1,15 @@
-import { puppetOptions, puppetWSOptions } from "./config";
+import { puppetOptions } from "./config";
 import { launch, Page, Browser, connect } from "puppeteer";
 
-export const openPuppetConnection = async (withWebSocket = false) => {
+// @link https://stackoverflow.com/questions/51175788/how-can-my-containerized-puppeteer-talk-to-my-host-machine-chrome#51184634
+export const openPuppetConnection = async (
+  withWebSocket: string | undefined
+) => {
   const browser: Browser = withWebSocket
-    ? await connect(puppetWSOptions)
-    : await launch(); // works without options, no chrome instance opened
-    // TODO test if above works within a container
+    ? await connect({
+        browserWSEndpoint: withWebSocket,
+      })
+    : await launch(puppetOptions);
 
   // go incognito
   const ctx = await browser.createIncognitoBrowserContext();
@@ -23,9 +27,9 @@ export const openPuppetConnection = async (withWebSocket = false) => {
   return { browser, page };
 };
 
-export const closePuppetConnection = async (browser: Browser, page: Page) => {
+export const closePuppetConnection = async (browser: Browser|undefined, page: Page|undefined) => {
   page && (await page.close());
-  browser && (await browser.close());
+  browser && (await browser.disconnect());
 };
 
 export const getRandomInt = (min: number, max: number): number => {
@@ -42,6 +46,9 @@ export const sleepRandom = async (sec: number, noise: number) =>
     setTimeout(res, sec * 1000 - noise + Math.random() * 2 * noise);
   });
 
+export const resolveDockerHostNameOrIp = () => {
+  return process.env.DOCKER_HOST_IP || "172.17.0.1";
+};
 /**
  * Class: BrowserHandler
  *     Relaunch Browser when Closed

@@ -3,21 +3,30 @@ version: "3.1"
 services:
   mongo:
     image: mongo
-    container_name: 'mongo-db'
+    container_name: mongo
     restart: always
     ports:
       - 27017:27017
-      
+
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS}
-    volumes: 
-     - ./init-db.js:/docker-entrypoint-initdb.d/inits.js:ro
+    volumes:
+      - ./init-db.js:/docker-entrypoint-initdb.d/inits.js:ro
 
-  ## TODO Add node app
-  #app:
-  #  image:
-  #  restart: always
+  ## node app
+  app:
+    network_mode: host
+    image: scraper:latest
+    container_name: "flight-price-scraper"
+    restart: "always"
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=localhost
+      - DOCKER_HOST_IP=${DOCKER_HOST_IP:-172.17.0.1}
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
 
   mongo-express:
     image: mongo-express
