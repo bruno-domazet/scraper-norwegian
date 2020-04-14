@@ -3,7 +3,7 @@ import { LaunchOptions, ConnectOptions } from "puppeteer-core";
 
 // TODO: conf per ENV, dev + cloud
 export const puppetOptions: LaunchOptions = {
-  executablePath: process.env.PATH_TO_CHROME || "/usr/bin/google-chrome",
+  executablePath: process.env.PATH_TO_CHROME || undefined,
   headless: false,
   slowMo: 200, // maybe needed?
   args: [

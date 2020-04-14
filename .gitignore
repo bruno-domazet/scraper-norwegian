@@ -3,3 +3,4 @@ dist/
 #.env
 screens/*
 *.log
+data/*
