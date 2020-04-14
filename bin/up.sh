@@ -3,8 +3,8 @@
 # https://github.com/docker/for-linux/issues/264
 # doesn't work with docker-compose?
 #export DOCKER_HOST_IP=$(ip route | grep docker0 | awk '{print $9}')
-
-BROWSER=${PATH_TO_CHROME:-"/usr/bin/chromium"}
+DEFAULT=$(which chromium)
+BROWSER=${PATH_TO_CHROME:-$DEFAULT}
 
 # start chrome in debug mode
 $BROWSER \
