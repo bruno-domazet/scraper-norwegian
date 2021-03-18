@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "main": "dist/index.js",
-  "repository": "git@bitbucket.org:brunodomazet/scraper-norwegian.git",
-  "author": "bosdo <bosdo@jfmedier.dk>",
+  "author": "Bruno Østergaard Domazet <bruno.domazet@protonmail.com>",
   "license": "MIT",
   "dependencies": {
     "@types/cheerio": "^0.22.17",
